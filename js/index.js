@@ -2,6 +2,7 @@ const LEFT = 25
 const TOP = 25
 const WIDTH = 250
 const HEIGHT = 350
+const ROTATE = ['〜', 'ー', '-', '~']
 
 $(function () {
   const ctx = $('#cv')[0].getContext('2d')
@@ -21,7 +22,16 @@ const draw = (ctx, textList = []) => {
     const fontSize = calcFontSize(textList)
     ctx.font = `${fontSize}px 'メイリオ'`
     applyCharPos(textList, fontSize)
-      .forEach(ele => ctx.fillText(ele.text, ele.x, ele.y))
+      .forEach(ele => {
+        const [offsetX, offsetY, rotate] = ROTATE.includes(ele.text)
+          ? [fontSize * 0.1, -fontSize * 0.9, Math.PI / 2]
+          : [0, 0, 0]
+        ctx.save()
+        ctx.translate(parseInt(ele.x + offsetX), parseInt(ele.y + offsetY));
+        ctx.rotate(rotate)
+        ctx.fillText(ele.text, 0, 0)
+        ctx.restore()
+      })
   })
 }
 
