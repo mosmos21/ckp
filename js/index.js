@@ -2,7 +2,12 @@ const LEFT = 25
 const TOP = 25
 const WIDTH = 250
 const HEIGHT = 350
-const ROTATE = ['〜', 'ー', '-', '~']
+const ROTATE = [
+  '~', '〜', '-', 'ー',
+  '(', '（', ')', '）',
+  '/', '／'
+]
+const FONT_FAMILY = '"Courier New", Consolas, monospace'
 
 $(function () {
   const ctx = $('#cv')[0].getContext('2d')
@@ -20,12 +25,12 @@ const draw = (ctx, textList = []) => {
   $(img).on('load', () => {
     ctx.drawImage(img, 0, 0)
     const fontSize = calcFontSize(textList)
-    ctx.font = `${fontSize}px 'メイリオ'`
+    ctx.font = `${fontSize}px  ${FONT_FAMILY}`
     applyCharPos(textList, fontSize)
       .forEach(ele => {
         const [offsetX, offsetY, rotate] = ROTATE.includes(ele.text)
-          ? [fontSize * 0.1, -fontSize * 0.9, Math.PI / 2]
-          : [0, 0, 0]
+          ? [0, fontSize * 0.1, Math.PI / 2]
+          : [0, fontSize, 0]
         ctx.save()
         ctx.translate(parseInt(ele.x + offsetX), parseInt(ele.y + offsetY));
         ctx.rotate(rotate)
@@ -41,18 +46,15 @@ const calcFontSize = textList => Math.min.apply(null, [
   Math.floor(HEIGHT / Math.max.apply(null, textList.map(str => str.length)))
 ])
 
-const applyCharPos = (textList, fontSize) =>
-  textList.reverse().map((str, row) =>
+const applyCharPos = (textList, fontSize) => {
+  const lineWidth = WIDTH / (textList.length * 2 - 1)
+  return textList.reverse().map((str, row) =>
     [...str].map((ch, col) => ({
       text: ch,
-      x: (row * (fontSize * 2)) + offset(textList.length, fontSize),
-      y: ((col + 1) * fontSize) + TOP,
+      x: LEFT + (row * (lineWidth * 2)) + lineWidth / 2 - fontSize / 2,
+      y: TOP + (col * fontSize),
     }))).flat()
-
-const offset = (rowCount, fontSize) =>
-  rowCount < 3
-    ? LEFT + (WIDTH / rowCount / 2) - (fontSize / 2)
-    : LEFT
+}
 
 const createBlob = () => {
   const bin = atob($('#cv')[0].toDataURL().split(',')[1])
