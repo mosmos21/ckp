@@ -14,7 +14,7 @@ $(function () {
   $('#download').click(() =>
     $(`<a id="link" href="${
       window.URL.createObjectURL(createBlob(atob($('#cv')[0].toDataURL().split(',')[1])))
-      }" download="export.png">download</a>`)[0].click())
+      }" download="export.png" />`)[0].click())
   $('#text').keyup(e => draw(ctx, $(e.target).val().split('\n')))
   draw(ctx)
 })
