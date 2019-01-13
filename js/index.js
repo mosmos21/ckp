@@ -11,10 +11,10 @@ $(function () {
   const ctx = $('#cv')[0].getContext('2d')
   ctx.fillStyle = 'white'
 
-  $('#download').click(() =>
-    $(`<a id="link" href="${
-      window.URL.createObjectURL(createBlob(atob($('#cv')[0].toDataURL().split(',')[1])))
-      }" download="export.png" />`)[0].click())
+  $('#download').click(() => {
+    const url = window.URL.createObjectURL(createBlob(atob($('#cv')[0].toDataURL().split(',')[1])))
+    $(`<a id="link" href="${url}" download="export.png" />`)[0].click()
+  })
   $('#text').keyup(e => draw(ctx, $(e.target).val().split('\n')))
   draw(ctx)
 })
@@ -26,13 +26,13 @@ const draw = (ctx, textList = []) => {
     ctx.drawImage(img, 0, 0)
     const fontSize = calcFontSize(textList)
     ctx.font = `${fontSize}px メイリオ`
-    applyCharPos(textList, fontSize)
+    applyCharPosition(textList, fontSize)
       .forEach(ele => {
         const [offsetX, offsetY, rotate] = ROTATE.includes(ele.text)
           ? [0, fontSize * 0.1, Math.PI / 2]
           : [0, fontSize, 0]
         ctx.save()
-        ctx.translate(parseInt(ele.x + offsetX), parseInt(ele.y + offsetY));
+        ctx.translate(Math.floor(ele.x + offsetX), Math.floor(ele.y + offsetY));
         ctx.rotate(rotate)
         ctx.fillText(ele.text, 0, 0)
         ctx.restore()
@@ -40,18 +40,17 @@ const draw = (ctx, textList = []) => {
   })
 }
 
-const calcFontSize = textList => Math.min.apply(null, [
-  WIDTH,
+const calcFontSize = textList => Math.min(
   Math.floor(WIDTH / (textList.length * 2 - 1)),
   Math.floor(HEIGHT / Math.max.apply(null, textList.map(str => str.length)))
-])
+)
 
-const applyCharPos = (textList, fontSize) => {
+const applyCharPosition = (textList, fontSize) => {
   const lineWidth = WIDTH / (textList.length * 2 - 1)
   return textList.reverse().map((str, row) =>
     [...str].map((ch, col) => ({
       text: ch,
-      x: LEFT + (row * (lineWidth * 2)) + lineWidth / 2 - fontSize / 2,
+      x: LEFT + (row * (lineWidth * 2)) + (lineWidth - fontSize) / 2,
       y: TOP + (col * fontSize),
     }))).flat()
 }
